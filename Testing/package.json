@@ -1,0 +1,14 @@
+{
+  "name": "testing",
+  "version": "1.0.0",
+  "description": "used to test the projects algorithm",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Gunther",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^27.2.1"
+  }
+}
