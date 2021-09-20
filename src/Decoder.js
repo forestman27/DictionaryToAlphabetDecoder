@@ -19,18 +19,59 @@ class Decoder {
      * using the above proof create a directional graph and find the largest connection of indices
      */
     decode() {
-        return search(graph(this.words));
+        return this.dynamicSearch(Decoder.graph(this.words));
     }
 
     /**
-     * 
      * @param {Adjacency List As JS Map} graph 
+     * solution: iterate through every member of the graph
+     * for each vertex search all possibilities
+     * base case we've visited every vertex
      */
-    search(graph) {
+    dynamicSearch(graph) {
+        for (const [vertexID, listValues] of graph) {
+            let alphabet = search(vertexID, [vertexID]);
+            if (alphabet.length === graph.size) return alphabet;
+        }
+        return [];
 
-    };
+        function search(vertexID, list) {
+            if (list.length === graph.size) return list;
 
-    static graph(words) {
+            let nextVertexs = graph.get(vertexID);
+            if (nextVertexs === undefined) return [];
+
+            for (let i = 0; i < nextVertexs.length; i++) {
+                if (inList(list, nextVertexs[i])) continue;
+                list.push(nextVertexs[i]);
+                search(nextVertexs[i], list);
+            }
+            return list;
+        }
+
+        function inList(list, vertex) {
+            for (let i = 0; i < list.length; i++) {
+                if (list[i] === vertex) return true;
+            }
+            return false;
+        }
+    }
+    
+
+
+    /**
+     * Proof: if the index of the last word is the same as the current's
+     *  then the last words next letter is before the current's next ^^^ iterative
+     *  
+     *  letters who don't have matching predecessors will be discarded because there is no way to prove their placement.
+     * 
+     * using the above proof create a directional graph ^^^
+     * graph is static because it is easier to unit test this way and it is independent.
+     * @param {ordered list of words} words 
+     * @returns {graph as a JS Map}
+     */
+    graph() {
+        let words = this.words;
         let graph = new Map();
         for (let i = 1; i < words.length; i++) {
             let letterIndex = 0;
@@ -46,7 +87,6 @@ class Decoder {
             } 
         }
         return graph;
-    
     
         function uppdateVertex(key, newValue) {
             let vertexList = graph.get(key);
@@ -70,45 +110,46 @@ module.exports = Decoder;
 
 
 
-/**
- * 
- * @param {list of "ordered" words} words 
- */
-function graph(words) {
-    let graph = new Map();
-    for (let i = 1; i < words.length; i++) {
-        let letterIndex = 0;
-        while ((words[i-1].length > letterIndex) && (words[i].charAt(letterIndex) === words[i-1].charAt(letterIndex))) {
-            letterIndex++;
-        }
+// /**
+//  * 
+//  * @param {list of "ordered" words} words 
+//  */
+// function graph(words) {
+//     let graph = new Map();
+//     for (let i = 1; i < words.length; i++) {
+//         let letterIndex = 0;
+//         while ((words[i-1].length > letterIndex) && (words[i].charAt(letterIndex) === words[i-1].charAt(letterIndex))) {
+//             letterIndex++;
+//         }
 
-        // we are going to point down the line a => b => c,d, c => d,... etc (then reverse it at the end of decode algorithm.)
-        if (words[i-1].length > letterIndex) {
-            let a = words[i].charAt(letterIndex);
-            let b = words[i - 1].charAt(letterIndex);
-            uppdateVertex(b, a);
-        } 
-    }
-    return graph;
+//         // we are going to point down the line a => b => c,d, c => d,... etc (then reverse it at the end of decode algorithm.)
+//         if (words[i-1].length > letterIndex) {
+//             let a = words[i].charAt(letterIndex);
+//             let b = words[i - 1].charAt(letterIndex);
+//             uppdateVertex(b, a);
+//         } 
+//     }
+//     return graph;
 
 
-    function uppdateVertex(key, newValue) {
-        let vertexList = graph.get(key);
-        if (vertexList === undefined) {
-            graph.set(key, [newValue]);
+//     function uppdateVertex(key, newValue) {
+//         let vertexList = graph.get(key);
+//         if (vertexList === undefined) {
+//             graph.set(key, [newValue]);
             
-        } else {
-            for (let i = 0; i < vertexList.length; i++) {
-                if (vertexList[i] === newValue) {
-                    return;
-                }
-            }
-            vertexList.push(newValue);
-            graph.set(key, vertexList);
-        }
-    }
-}
+//         } else {
+//             for (let i = 0; i < vertexList.length; i++) {
+//                 if (vertexList[i] === newValue) {
+//                     return;
+//                 }
+//             }
+//             vertexList.push(newValue);
+//             graph.set(key, vertexList);
+//         }
+//     }
+// }
 
-console.log(graph(['aba','accd','acd']))
-console.log(graph(['bca','aaa','acb']))
-console.log(graph(['aaa','accad','accd','fab','fac','fc']))
+// new Decoder(['aba','accd','acd']).graph();
+// console.log(new Decoder(['aba','accd','acd']).graph())
+// console.log(graph(['bca','aaa','acb']))
+// console.log(graph(['aaa','accad','accd','fab','fac','fc']))
