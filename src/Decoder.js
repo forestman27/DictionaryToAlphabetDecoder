@@ -19,7 +19,7 @@ class Decoder {
      * using the above proof create a directional graph and find the largest connection of indices
      */
     decode() {
-        return this.dynamicSearch(Decoder.graph(this.words));
+        return this.dynamicSearch(this.graph(this.words));
     }
 
     /**
@@ -29,31 +29,46 @@ class Decoder {
      * base case we've visited every vertex
      */
     dynamicSearch(graph) {
+        let longest = [];
         for (const [vertexID, listValues] of graph) {
-            let alphabet = search(vertexID, [vertexID]);
-            if (alphabet.length === graph.size) return alphabet;
+            search(vertexID, []);
+            // if (longest.length < alphabet.length) longest = [...alphabet];
         }
-        return [];
+        return longest;
 
+        /**
+         * if new vertex isn't in the list and the 
+         * @param {*} vertexID 
+         * @param {*} list 
+         * @returns 
+         */
         function search(vertexID, list) {
-            if (list.length === graph.size) return list;
+            if (xInList(vertexID, list)) {
+                updateLongest(list);
+                return;
+            }
 
             let nextVertexs = graph.get(vertexID);
-            if (nextVertexs === undefined) return [];
-
-            for (let i = 0; i < nextVertexs.length; i++) {
-                if (inList(list, nextVertexs[i])) continue;
-                list.push(nextVertexs[i]);
-                search(nextVertexs[i], list);
+            if (nextVertexs === undefined) {
+                updateLongest(list.concat(vertexID));
+                return;
             }
-            return list;
+            
+            for (let i = 0; i < nextVertexs.length; i++) {
+                search(nextVertexs[i], list.concat(vertexID));
+            }
+            updateLongest(list.concat(vertexID));
         }
 
-        function inList(list, vertex) {
+        function xInList(x, list) {
             for (let i = 0; i < list.length; i++) {
-                if (list[i] === vertex) return true;
+                if (x == list[i]) return true;
             }
             return false;
+        }
+
+        function updateLongest(list) {
+            if (longest.length < list.length) longest = [...list];
         }
     }
     
@@ -92,7 +107,6 @@ class Decoder {
             let vertexList = graph.get(key);
             if (vertexList === undefined) {
                 graph.set(key, [newValue]);
-                
             } else {
                 for (let i = 0; i < vertexList.length; i++) {
                     if (vertexList[i] === newValue) {
@@ -109,47 +123,13 @@ class Decoder {
 module.exports = Decoder;
 
 
-
-// /**
-//  * 
-//  * @param {list of "ordered" words} words 
-//  */
-// function graph(words) {
-//     let graph = new Map();
-//     for (let i = 1; i < words.length; i++) {
-//         let letterIndex = 0;
-//         while ((words[i-1].length > letterIndex) && (words[i].charAt(letterIndex) === words[i-1].charAt(letterIndex))) {
-//             letterIndex++;
-//         }
-
-//         // we are going to point down the line a => b => c,d, c => d,... etc (then reverse it at the end of decode algorithm.)
-//         if (words[i-1].length > letterIndex) {
-//             let a = words[i].charAt(letterIndex);
-//             let b = words[i - 1].charAt(letterIndex);
-//             uppdateVertex(b, a);
-//         } 
-//     }
-//     return graph;
-
-
-//     function uppdateVertex(key, newValue) {
-//         let vertexList = graph.get(key);
-//         if (vertexList === undefined) {
-//             graph.set(key, [newValue]);
-            
-//         } else {
-//             for (let i = 0; i < vertexList.length; i++) {
-//                 if (vertexList[i] === newValue) {
-//                     return;
-//                 }
-//             }
-//             vertexList.push(newValue);
-//             graph.set(key, vertexList);
-//         }
-//     }
-// }
-
+['aba','accd','acd','ca','cb','cc']
 // new Decoder(['aba','accd','acd']).graph();
 // console.log(new Decoder(['aba','accd','acd']).graph())
+let decoder = new Decoder(['aba','accd','acd','ca','cb','cc']);
+console.log(decoder.graph());
+console.log(decoder.decode());
+console.log('done')
+
 // console.log(graph(['bca','aaa','acb']))
 // console.log(graph(['aaa','accad','accd','fab','fac','fc']))

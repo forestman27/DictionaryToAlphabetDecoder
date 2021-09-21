@@ -1,6 +1,5 @@
 const Decoder = require('../src/Decoder.js');
 
-
 test('given example => graph initialization', ()=> {
     const words = ['bca','aaa','acb'];
     let graph = new Map();
@@ -25,14 +24,14 @@ test('given example => finding a path which touches every vertex 1 time', ()=> {
 })
 
 test('English alphabet', () => {
-    const words = ['aba','accd','acd'];
+    const words = ['aba','accd','acd','ca','cb','cc'];
     const results = ['a','b','c','d'];
     expect(new Decoder(words).decode()).toStrictEqual(results);
 })
 
-test('English alphabet 2', () => {
-    const words = ['aaa','accad','accd','fab','fac','fc'];
-    const results = ['a','b','c','d','f'];
+test('English alphabet 2 doesnt include "d" even though it is in the graph', () => {
+    const words = ['aaa','accad','accd','b','c','fab','fac','fc'];
+    const results = ['a','b','c','f'];
     expect(new Decoder(words).decode()).toStrictEqual(results);
 })
 
